@@ -1,5 +1,4 @@
 #encoding:utf-8       #设置编码方式  
-
 import xlwt
 
 d=[['1','a','XXX'],['2','b','ooo'],['3','c','xoo'],['4','d','oox']]
