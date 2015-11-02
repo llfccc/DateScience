@@ -2,6 +2,15 @@
 import xlwt
 
 d=[['1','a','XXX'],['2','b','ooo'],['3','c','xoo'],['4','d','oox']]
+##---sortlist函数使用迭代删除重复的列表,不影响排序，网上抄来的---##
+  def sortlist(list0):
+    listTemp=[]
+    for i in list0:
+        if not i in listTemp:
+            listTemp.append(i)
+    return listTemp
+
+d=sortlist(d)
 ##---将结果写入excel文件，保存为results.xls的sheet1表   ---##
 w = xlwt.Workbook()     #创建一个工作簿
 ws = w.add_sheet('Sheet1')     #创建一个工作表
