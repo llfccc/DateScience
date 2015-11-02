@@ -1,9 +1,9 @@
 #encoding:utf-8       #设置编码方式  
-import xlwt
+import xlwt     #导入
 
 d=[['1','a','XXX'],['2','b','ooo'],['3','c','xoo'],['4','d','oox']]
 ##---sortlist函数使用迭代删除重复的列表,不影响排序，网上抄来的---##
-  def sortlist(list0):
+def sortlist(list0): 
     listTemp=[]
     for i in list0:
         if not i in listTemp:
