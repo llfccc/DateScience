@@ -10,7 +10,7 @@ def sortlist(list0):
             listTemp.append(i)
     return listTemp
 
-d=sortlist(d)
+d=sortlist(d)  #删除d列表中的重复项
 ##---将结果写入excel文件，保存为results.xls的sheet1表   ---##
 w = xlwt.Workbook()     #创建一个工作簿
 ws = w.add_sheet('Sheet1')     #创建一个工作表
