@@ -3,16 +3,15 @@ import re
 import sys
 import xlwt
 reload(sys)
-sys.setdefaultencoding('utf8')
+sys.setdefaultencoding('utf8')   #使用utf-8处理字符
 import datetime
 starttime = datetime.datetime.now()  #用来计算程序耗时
-#long running
 
-text=open('a.txt','r').read()   #读取源文件
+text=open('a.ini','r').read()   #读取源文件a.txt
 
 ##------正则表达式匹配部分 ------####
-p =re.compile(r'/\*[\s\S]*?\*/')  ##找到所有/* 开头 ，*/结尾的内容
-p0 =re.compile(r'\*/([\s\S]*?)/\*') ##找到所有*/ 开头 ，/*结尾的内容 ，并只取
+p =re.compile(r'/\*[\s\S]*?\*/')  ##找到所有/* 开头 ，*/结尾的内容（即主题提示部分）
+p0 =re.compile(r'\*/([\s\S]*?)/\*') ##找到所有*/ 开头 ，/*结尾的内容 ，并只取部分内容，（即对话内容部分）
 p1=re.compile(r'([\x80-\xff]+\d*?) \([\x80-\xff]+\d*?\) 20\w\w-\w\w-\w\w \w\w:\w\w:\w\w') ##匹配名字和时间，取其中的名字
 p2=re.compile(r'[\x80-\xff]+\d*? \([\x80-\xff]+\d*?\) (20\w\w-\w\w-\w\w \w\w:\w\w:\w\w)') ##匹配名字和时间，取其中的时间
 p3=re.compile(r'[\x80-\xff]+\d*? \([\x80-\xff]+\d*?\) 20\w\w-\w\w-\w\w \w\w:\w\w:\w\w\n') ##匹配名字和时间，分割出剩余部分即对话内容
@@ -21,22 +20,21 @@ p3=re.compile(r'[\x80-\xff]+\d*? \([\x80-\xff]+\d*?\) 20\w\w-\w\w-\w\w \w\w:\w\w
 FirstPart=re.findall(p,text) #找到符合/* */的所有内容,保存为提示部分FirstPart列表
 LastPart=re.findall(p0,text) #查找/* */来分割开来，保存剩下的对话部分为LastPart列表
 #本来用LastPart=re.split(p,text,re.MULTILINE)，发现re.split只能分隔成9部分，故放弃
-
 while '' in LastPart:    #删掉split出来的所有空字符，不知道哟见没有用
     LastPart.remove('')
 
 if len(FirstPart)!=len(LastPart):
     print "Len is not equal"
 
-listL=[]
-d=[]   #将a,b,c数组合成一个d数组
+listL=[] #储存主题提示部分
+d=[]   #将a,b,c数组合成一个d数组，d[]代表对话内容部分
 #result=[['' for x in range(12)] for y in range(1000)] #将所有结果存入result数组
 ##------处理主题提示部分 ------####
 for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1):
-
     for i in ('/*','主 题','创建时间','创建者','参与者','*/'):
         FirstPart[n] = FirstPart[n].replace(i,'ox2o')  #通过统一替换不同的分隔符来一次性分割开语句
         FirstPart[n] = FirstPart[n].replace("：",'')   #删除“主 题：”
+
     listL.append(FirstPart[n].split('ox2o'))
 
     ##------处理对话部分 ------####
@@ -57,7 +55,7 @@ for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1):
         for i in range(0,len(a),1):
             d.append(listL[n]  +[a[i],b[i],c[i+1]])
 
- ##---sortlist函数使用迭代删除重复的列表,不影响排序，网上抄来的---##
+##---sortlist函数使用迭代删除重复的列表,不影响排序，网上抄来的---##
 def sortlist(list0):
     listTemp=[]
     for i in list0:
@@ -65,7 +63,7 @@ def sortlist(list0):
             listTemp.append(i)
     return listTemp
 
-#d=sortlist(d)  #删除d列表中的重复项
+d=sortlist(d)  #删除d列表中的重复项
 
 ##---将结果写入excel文件，保存为results.xls的sheet1表   ---##
 w = xlwt.Workbook()     #创建一个工作簿
@@ -77,18 +75,4 @@ for i in range(0,len(d),1):     #外循环，d[i]代表每一条完整的记录�
 w.save('results.xls')     #保存
 
 endtime = datetime.datetime.now()
-print "It has taken",(endtime - starttime).seconds,"s"
-
-##导出中间文件，测试用的，不需要了
-#fl=open('list.txt', 'w')
-#for i in LastPart:
-#    fl.write(i)
-#    fl.write("\n")
-#fl.close()
-#
-#f2=open('list2.txt', 'w')
-#
-#for i in FirstPart:
-#    f2.write(i)
-#    f2.write("\n")
-#f2.close()
+print "The End.\nIt has taken",(endtime - starttime).seconds,"s"
