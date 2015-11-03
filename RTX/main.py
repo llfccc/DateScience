@@ -4,6 +4,11 @@ import sys
 import xlwt
 reload(sys)
 sys.setdefaultencoding('utf8')
+import datetime
+starttime = datetime.datetime.now()  #用来计算程序耗时
+#long running
+
+
 
 text=open('a.ini','r').read()   #读取源文件
 
@@ -62,7 +67,7 @@ def sortlist(list0):
             listTemp.append(i)
     return listTemp
 
-d=sortlist(d)  #删除d列表中的重复项
+#d=sortlist(d)  #删除d列表中的重复项
 
 ##---将结果写入excel文件，保存为results.xls的sheet1表   ---##
 w = xlwt.Workbook()     #创建一个工作簿
@@ -72,6 +77,9 @@ for i in range(0,len(d),1):     #外循环，d[i]代表每一条完整的记录�
        ws.write(i+1,j,d[i][j].decode())    #在i行j列写入d[i][j]，用decode（）来变成中文
 
 w.save('results.xls')     #保存
+
+endtime = datetime.datetime.now()
+print (endtime - starttime).seconds
 
 ##导出中间文件，测试用的，不需要了
 #fl=open('list.txt', 'w')
