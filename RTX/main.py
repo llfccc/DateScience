@@ -8,9 +8,7 @@ import datetime
 starttime = datetime.datetime.now()  #用来计算程序耗时
 #long running
 
-
-
-text=open('a.ini','r').read()   #读取源文件
+text=open('a.txt','r').read()   #读取源文件
 
 ##------正则表达式匹配部分 ------####
 p =re.compile(r'/\*[\s\S]*?\*/')  ##找到所有/* 开头 ，*/结尾的内容
@@ -29,12 +27,12 @@ while '' in LastPart:    #删掉split出来的所有空字符，不知道哟见�
 
 if len(FirstPart)!=len(LastPart):
     print "Len is not equal"
-  
+
 listL=[]
 d=[]   #将a,b,c数组合成一个d数组
 #result=[['' for x in range(12)] for y in range(1000)] #将所有结果存入result数组
 ##------处理主题提示部分 ------####
-for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1): 
+for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1):
 
     for i in ('/*','主 题','创建时间','创建者','参与者','*/'):
         FirstPart[n] = FirstPart[n].replace(i,'ox2o')  #通过统一替换不同的分隔符来一次性分割开语句
@@ -48,7 +46,7 @@ for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1):
     c=re.sub(p3,'ox3o',temp) #取对话内容
     c=c.strip()   #忘了有啥用了，但是有用
     c=c.split("ox3o",)
-  
+
     while '' in c:    #删掉split出来的所有空字符
         c.remove('')
     ##---因为备注部分只出现一次，故用循环将每一句对话都配合上备注部分，组成一条完整的对话内容，包括所有部分--##
@@ -58,7 +56,7 @@ for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1):
     elif len(a)==len(b) and len(b)==(len(c))-1:
         for i in range(0,len(a),1):
             d.append(listL[n]  +[a[i],b[i],c[i+1]])
-   
+
  ##---sortlist函数使用迭代删除重复的列表,不影响排序，网上抄来的---##
 def sortlist(list0):
     listTemp=[]
@@ -79,7 +77,7 @@ for i in range(0,len(d),1):     #外循环，d[i]代表每一条完整的记录�
 w.save('results.xls')     #保存
 
 endtime = datetime.datetime.now()
-print (endtime - starttime).seconds
+print "It has taken",(endtime - starttime).seconds,"s"
 
 ##导出中间文件，测试用的，不需要了
 #fl=open('list.txt', 'w')
