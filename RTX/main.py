@@ -3,6 +3,8 @@ import re
 import sys
 import datetime
 import xlwt
+import jieba
+
 reload(sys)
 sys.setdefaultencoding('utf8')   #使用utf-8处理字符
 starttime = datetime.datetime.now()  #用来计算程序耗时
@@ -10,7 +12,7 @@ starttime = datetime.datetime.now()  #用来计算程序耗时
 #读取源文件a.ini和载入用户字典
 
 text=open('a.ini','r').read()
-#jieba.load_userdict("userdict.txt")
+jieba.load_userdict("userdict.txt")
 ##------正则表达式匹配部分 ------####
 
 p =re.compile(r'/\*[\s\S]*?\*/')  ##找到所有/* 开头 ，*/结尾的内容（即主题提示部分）
@@ -61,15 +63,17 @@ for n in range(0,len(LastPart),1):   # for n in range(0,len(LastPart),1):
 ##---sortlist函数使用迭代删除重复的列表,不影响排序，网上抄来的---##
 def sortlist(list0):
     listTemp=[]
+
     for i in list0:
-        if not i in listTemp:
+
+        if not i in listTemp  and len(i[4])>180:   #len(i[4])>180 是为了筛选参与人数超过18人的对话，个人特殊用途
             listTemp.append(i)
     return listTemp
-
+print len(d)
 d=sortlist(d)  #删除d列表中的重复项
-
+print len(d)
 ##---分词统计---###
-import jieba
+
 #jieba.load_userdict("userdict.txt")  #载入自定义用户词典
 
 #因对话内容处于d[][9]处，故对其用jieba的lcut分为列表
@@ -87,29 +91,39 @@ for c in range(0,len(d),1):  #将聊天记录分词为一个列表，然后存�
 ##--统计词频并写入到jieguo.ini--##
 word_lst = []
 word_dict = {}
-with open("jieguo.ini",'w') as f2:
-    for line in d:    #取d的每一行
-        for j in line[11]: #取d数组每一行的第12个元素，即分词后的列表seg_list，j为每一个分词后的词组
-            word_lst.append(j)
 
-    for item in word_lst:   #对每一个词组进行计数
-        if item.strip() not in "，, \ / ！。“”" :   #不计特殊符号的数量
-            if item not in word_dict:
-                word_dict[item] = 1
-            else :
-                word_dict[item] += 1
-    for key in word_dict:  #写入jieguo.ini文件
-       f2.write(key+'  '+str(word_dict[key]))
-       f2.write('\r\n')
+for line in d:    #取d的每一行
+    for j in line[11]: #取d数组每一行的第12个元素，即分词后的列表seg_list，j为每一个分词后的词组
+        word_lst.append(j)
+
+for item in word_lst:   #对每一个词组进行计数
+#        if item.strip() not in "，, \ / ！。“”" :   #不计特殊符号的数量
+        if item not in word_dict:
+            word_dict[item] = 1
+        else :
+            word_dict[item] += 1
+
+#用ini保存结果有点问题，所有不用了
+#with open("jieguo.ini",'w') as f2:
+#    for key in word_dict:  #写入jieguo.ini文件
+#       f2.write(key+'  '+str(word_dict[key]))
+#       f2.write('\r\n')
 
 #---将结果写入excel文件，保存为results2.xls的sheet1表   ---##
 w = xlwt.Workbook()     #创建一个工作簿
 ws = w.add_sheet('Sheet1')     #创建一个工作表
+ws2 = w.add_sheet('Sheet2')     #创建一个工作表
 for i in range(0,len(d),1):     #外循环，d[i]代表每一条完整的记录，包括主题、参与者、对话内容等
     for j in range(0,len(d[0])-1,1):  #内循环，d[i][j]代表每一条完整记录中某一列的内容
         ws.write(i+1,j,d[i][j].decode())    #在i行j列写入d[i][j]，用decode（）来变成中文
+num=0
+for (k,v) in  word_dict.items():
+    if num<len(word_dict):
+        num=num+1
+        ws2.write(num,1,k)
+        ws2.write(num,2,v)
 
-w.save('results.xls')     #保存
+w.save('results2.xls')     #保存
 
 ##--程序结束，计算程序耗时--##
 endtime = datetime.datetime.now()
