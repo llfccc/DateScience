@@ -109,7 +109,7 @@ for i in range(0,len(d),1):     #外循环，d[i]代表每一条完整的记录�
     for j in range(0,len(d[0])-1,1):  #内循环，d[i][j]代表每一条完整记录中某一列的内容
         ws.write(i+1,j,d[i][j].decode())    #在i行j列写入d[i][j]，用decode（）来变成中文
 
-w.save('results2.xls')     #保存
+w.save('results.xls')     #保存
 
 ##--程序结束，计算程序耗时--##
 endtime = datetime.datetime.now()
