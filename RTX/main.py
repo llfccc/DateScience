@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 import re
 import sys
+import datetime
 import xlwt
 reload(sys)
 sys.setdefaultencoding('utf8')   #使用utf-8处理字符
-import datetime
 starttime = datetime.datetime.now()  #用来计算程序耗时
 
-text=open('a.ini','r').read()   #读取源文件a.txt
+#读取源文件a.ini
+
+text=open('a.ini','r').read()
 
 ##------正则表达式匹配部分 ------####
+
 p =re.compile(r'/\*[\s\S]*?\*/')  ##找到所有/* 开头 ，*/结尾的内容（即主题提示部分）
 p0 =re.compile(r'\*/([\s\S]*?)/\*') ##找到所有*/ 开头 ，/*结尾的内容 ，并只取部分内容，（即对话内容部分）
 p1=re.compile(r'([\x80-\xff]+\d*?) \([\x80-\xff]+\d*?\) 20\w\w-\w\w-\w\w \w\w:\w\w:\w\w') ##匹配名字和时间，取其中的名字
@@ -65,14 +68,46 @@ def sortlist(list0):
 
 d=sortlist(d)  #删除d列表中的重复项
 
-##---将结果写入excel文件，保存为results.xls的sheet1表   ---##
+##---分词统计---###
+import jieba
+#jieba.load_userdict("userdict.txt")  #载入自定义用户词典
+
+#因对话内容处于d[][9]处，故对其用jieba的lcut分为列表
+#测试用的数据d=[['','','zhuti','faqiren','canyuzhe','shijian','','llf','2015-3-1 19:00:00','中文狗在此报道/tx~/tx~ \/ll'],['','','zhuti','faqiren','canyuzhe','shijian','','llf','2015-3-1 19:00:00','bu dong le ba,na jiu kan ba s\ll \cy']]
+for c in range(0,len(d),1):  #将聊天记录分词为一个列表，然后存放在原来的地方
+    seg_list = list(jieba.cut(d[c][9])) #默认是精确模式,用list（）来转换迭代器为列表
+    seg_list2= " ".join(seg_list)
+    d[c].append(seg_list2)  #储存分词后的内容为字符串
+    d[c].append(seg_list)  # 储存分词后的分词为一个列表，成为3维列表
+
+##--统计词频并写入到jieguo.ini--##
+word_lst = []
+word_dict = {}
+with open("jieguo.ini",'w') as f2:
+    for line in d:    #取d的每一行
+        for j in line[11]: #取d数组每一行的第12个元素，即分词后的列表seg_list，j为每一个分词后的词组
+            word_lst.append(j)
+
+    for item in word_lst:   #对每一个词组进行计数
+        if item.strip() not in "，, \ / ！。“”" :   #不计特殊符号的数量
+            if item not in word_dict:
+                word_dict[item] = 1
+            else :
+                word_dict[item] += 1
+    for key in word_dict:  #写入jieguo.ini文件
+       #print key,word_dict[key]
+       f2.write(key+'    '+str(word_dict[key]))
+       f2.write('\r\n')
+
+#---将结果写入excel文件，保存为results2.xls的sheet1表   ---##
 w = xlwt.Workbook()     #创建一个工作簿
 ws = w.add_sheet('Sheet1')     #创建一个工作表
 for i in range(0,len(d),1):     #外循环，d[i]代表每一条完整的记录，包括主题、参与者、对话内容等
-    for j in range(0,len(d[0]),1):  #内循环，d[i][j]代表每一条完整记录中某一列的内容
-       ws.write(i+1,j,d[i][j].decode())    #在i行j列写入d[i][j]，用decode（）来变成中文
+    for j in range(0,len(d[0])-1,1):  #内循环，d[i][j]代表每一条完整记录中某一列的内容
 
-w.save('results.xls')     #保存
+        ws.write(i+1,j,d[i][j].decode())    #在i行j列写入d[i][j]，用decode（）来变成中文
 
+w.save('results2.xls')     #保存
+##--程序结束，计算程序耗时--##
 endtime = datetime.datetime.now()
 print "The End.\nIt has taken",(endtime - starttime).seconds,"s"
